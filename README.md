@@ -11,7 +11,7 @@ This is a project by **Students of Interaction Design at FH Joanneum**.
 #### 1. Install Processing
 1. Download Processing from the [official website](https://processing.org/download/).
 2. Unzip the downloaded file.
-3. Move the unzipped content to the **Program Files** directory:
+3. Move the unzipped content to the **Program Files** directory
 
 
 #### 2. Add Processing to Environment Variables
@@ -23,6 +23,10 @@ Sometimes, you need to manually set the path for `processing-java` in your envir
 4. Under the **User Variables** section, find and select **Path**, then click **Edit**.
 5. Add the path to the folder containing `processing-java.exe`:
 6. Click **OK** to save your changes.
+
+![Controll Panel](images/controllpanel.jpg)
+![Environment Variables](images/environmentvariables.jpg)
+![Add New](images/addnew.jpg)
 
 > **Note:** If you already have an IDE like VS Code open, you need to restart it for the changes to take effect.
 
