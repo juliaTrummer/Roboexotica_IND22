@@ -2,35 +2,19 @@ import TUIO.*;
 
 TuioProcessing tuioClient;
 
-Box[] boxes = new Box[4];
-float boxWidth = 200;   
-float boxHeight = 200; 
-float spacing = 20; 
+Boxes boxes;
 
 void setup() {
   size(1000, 600);
 
   tuioClient = new TuioProcessing(this);
   println("TUIO Client initialized. Listening for events...");
-
-
-  float totalWidth = (boxes.length * boxWidth) + ((boxes.length - 1) * spacing);
-  float startX = (width - totalWidth) / 2; 
-  float centerY = height / 2; 
-
-  for (int i = 0; i < boxes.length; i++) {
-    float x = startX + i * (boxWidth + spacing); 
-    boxes[i] = new Box(x, centerY - boxHeight / 2, boxWidth, boxHeight);
-  }
-
 }
 
 void draw() {
   background(0); // Clear the screen
 
-  for (Box box : boxes) {
-    box.display();
-  }
+  boxes = new Boxes();
 
   // Display all active TUIO objects
   for (TuioObject tobj : tuioClient.getTuioObjectList()) {
@@ -38,7 +22,7 @@ void draw() {
     noStroke();
     float x = tobj.getScreenX(width);
     float y = tobj.getScreenY(height);
-    ellipse(x, y, 50, 50);
+    ellipse(x, y, 10, 10);
     fill(255);
     textAlign(CENTER);
     text("ID: " + tobj.getSymbolID(), x, y - 30); // Display object ID
@@ -79,6 +63,7 @@ void addTuioObject(TuioObject tobj) {
 void updateTuioObject(TuioObject tobj) {
   println("Object updated: ID " + tobj.getSymbolID() + ", New Position (" +
     tobj.getScreenX(width) + ", " + tobj.getScreenY(height) + ")");
+  chosenAlcohol(tobj.getSymbolID());
 }
 
 // Called when an object is removed
@@ -121,4 +106,23 @@ void removeTuioBlob(TuioBlob tblb) {
 // Called after every TUIO frame (use to update the display)
 void refresh(TuioTime frameTime) {
   // This method is called once per TUIO frame.
+}
+
+void chosenAlcohol(int drinkType){
+  switch (drinkType) {
+        case 0:
+            println("You chose Whiskey.");
+            break;
+        case 1:
+            println("You chose Vodka.");
+            break;
+        case 2:
+            println("You chose Gin.");
+            break;
+        case 3:
+            println("You chose Rum.");
+            break;
+        default:
+            println("Unknown drink.");
+    }
 }
