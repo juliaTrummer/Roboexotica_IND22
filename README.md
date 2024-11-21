@@ -47,11 +47,6 @@ If you're using VS Code, make sure to install the **Processing plugins** to enab
 
 ---
 
-### Images
-(Add two relevant images here: e.g., setup steps, expected output, or Reactivision in action.)
-
----
-
 ### Additional Notes
 - Ensure you restart your IDE after setting up the environment variables.
 - Check that the `tuio-processing` library is properly placed in the `libraries` folder of your sketchbook.
