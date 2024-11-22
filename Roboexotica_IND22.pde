@@ -2,7 +2,7 @@ import TUIO.*;
 
 TuioProcessing tuioClient;
 
-Boxes boxes;
+Boxes boxes = new Boxes(); 
 
 void setup() {
   size(1000, 600);
@@ -14,7 +14,7 @@ void setup() {
 void draw() {
   background(0); // Clear the screen
 
-  boxes = new Boxes();
+  boxes.drawBoxes();
 
   // Display all active TUIO objects
   for (TuioObject tobj : tuioClient.getTuioObjectList()) {
@@ -64,6 +64,7 @@ void updateTuioObject(TuioObject tobj) {
   println("Object updated: ID " + tobj.getSymbolID() + ", New Position (" +
     tobj.getScreenX(width) + ", " + tobj.getScreenY(height) + ")");
   chosenAlcohol(tobj.getSymbolID());
+  
 }
 
 // Called when an object is removed
