@@ -2,18 +2,20 @@ import TUIO.*;
 
 TuioProcessing tuioClient;
 
-Boxes boxes = new Boxes(); 
-
+Boxes boxes;
 void setup() {
-  size(1000, 600);
+  size(1200, 800);
+
+  boxes = new Boxes();
 
   tuioClient = new TuioProcessing(this);
   println("TUIO Client initialized. Listening for events...");
 }
 
 void draw() {
-  background(0); // Clear the screen
 
+  background(0); // Clear the screen
+  fill(255); 
   boxes.drawBoxes();
 
   // Display all active TUIO objects
@@ -63,7 +65,11 @@ void addTuioObject(TuioObject tobj) {
 void updateTuioObject(TuioObject tobj) {
   println("Object updated: ID " + tobj.getSymbolID() + ", New Position (" +
     tobj.getScreenX(width) + ", " + tobj.getScreenY(height) + ")");
-  chosenAlcohol(tobj.getSymbolID());
+  
+  float tuioX = tobj.getScreenX(width); // Replace with TUIO input's x-coordinate
+  float tuioY = tobj.getScreenY(height); // Replace with TUIO input's y-coordinate
+
+  boxes.checkPoint(tuioX, tuioY);
   
 }
 
@@ -107,59 +113,4 @@ void removeTuioBlob(TuioBlob tblb) {
 // Called after every TUIO frame (use to update the display)
 void refresh(TuioTime frameTime) {
   // This method is called once per TUIO frame.
-}
-
-void chosenAlcohol(int drinkType){
-  switch (drinkType) {
-      case 0:
-          println("You chose Whiskey.");
-          break;
-      case 1:
-          println("You chose Vodka.");
-          break;
-      case 2:
-          println("You chose Gin.");
-          break;
-      case 3:
-          println("You chose Rum.");
-          break;
-      case 4:
-          println("You chose Cranberry.");
-          break;
-      case 5:
-          println("You chose Pineapple.");
-          break;
-      case 6:
-          println("You chose Orange.");
-          break;
-      case 7:
-          println("You chose Ginger Ale.");
-          break;
-      case 8:
-          println("You chose Coconut Sirup.");
-          break;
-      case 9:
-          println("You chose Grenadine.");
-          break;
-      case 10:
-          println("You chose Blue Curacao.");
-          break;
-      case 11:
-          println("You chose Elderflower Sirup.");
-          break;
-      case 12:
-          println("You chose Mint.");
-          break;
-      case 13:
-          println("You chose Lime Slices.");
-          break;
-      case 14:
-          println("You chose Olives.");
-          break;
-      case 15:
-          println("You chose Cocktail Cherries.");
-          break;
-      default:
-          println("Unknown ingredient.");
-  }
 }

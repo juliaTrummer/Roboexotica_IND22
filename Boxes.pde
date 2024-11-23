@@ -12,17 +12,31 @@ class Boxes {
     
     for (int i = 0; i < 4; i++) {
       float x = startX + i * (boxWidth + spacing); 
-      boxList.add(new Box(startX, centerY, boxWidth, boxHeight));
+      float y = centerY - boxHeight / 2; 
+      int randomColor = color(255); 
+      Box box = new Box(x, y, boxWidth, boxHeight, randomColor);
+      boxList.add(box);
     }
   }
 
-  void drawBoxes(){
-    for(Box box : boxList){
-      display(box.getX(), box.getY(), box.getW(), box.getH());
+  void drawBoxes() {
+    for (Box box : boxList) {
+      fill(box.getColor());
+      rect(box.x, box.y, box.w, box.h);
     }
   }
 
-  void display(float x, float y, float w, float h) {
-    rect(x, y, w, h);
+  // Check if a point is inside any box
+  void checkPoint(float px, float py) {
+    boolean anyHit = false; // To track if any box is hit
+
+    for (Box box : boxList) {
+      if (box.isInside(px, py)) {
+        box.setColor(color(255, 0, 0)); // Set color to red if the point is inside
+        anyHit = true;
+      } else {
+        box.resetColor(); // Reset to default color if the point is outside
+      }
+    }
   }
 }
