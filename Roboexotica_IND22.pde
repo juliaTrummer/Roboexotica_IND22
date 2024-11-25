@@ -1,8 +1,10 @@
 import TUIO.*;
+import java.util.ArrayList;
+import processing.sound.SoundFile;
 
 TuioProcessing tuioClient;
-
 Boxes boxes;
+
 void setup() {
   size(1200, 800);
 
@@ -69,7 +71,7 @@ void updateTuioObject(TuioObject tobj) {
   float tuioX = tobj.getScreenX(width); // Replace with TUIO input's x-coordinate
   float tuioY = tobj.getScreenY(height); // Replace with TUIO input's y-coordinate
 
-  boxes.checkPoint(tuioX, tuioY);
+  boxes.checkPoint(tuioX, tuioY, tobj.getSymbolID());
   
 }
 

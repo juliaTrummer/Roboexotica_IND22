@@ -1,29 +1,24 @@
-import java.io.File; 
-import processing.sound.*;
+public class MP3Sound {
+    private SoundFile sound;
+    private PApplet parent; // Reference to the main PApplet instance
 
-/*
-class MP3Sound {
-  
-  ArrayList<SoundFile> sounds = new ArrayList<SoundFile>();  // List to store sound files
-  ArrayList<String> filenames = new ArrayList<String>();  // List to store filenames
-
-  MP3Sound(){
-    File folder = new File(dataPath("Sounds"));
-    File[] files = folder.listFiles();
-    for (File f : files) {
-      if (f.isFile() && (f.getName().endsWith(".mp3") || f.getName().endsWith(".wav"))) {
-        filenames.add(f.getName());
-        sounds.add(new SoundFile(this, "sounds/" + f.getName()));
-      }
+    // Constructor that takes a PApplet instance and file path
+    public MP3Sound(PApplet parent, String filePath) {
+        this.parent = parent; // Store the PApplet reference
+        sound = new SoundFile(parent, filePath); // Use parent (PApplet) to create SoundFile
+        if (sound.isLoaded()) {
+            parent.println("Sound file loaded successfully.");
+        } else {
+            parent.println("Failed to load sound file.");
+        }
     }
 
-    for (SoundFile sound : sounds) {
-      sound.play();
+    // Method to play the sound
+    public void play() {
+        if (sound.isLoaded()) {
+            sound.play();
+        } else {
+            parent.println("Sound file is not loaded, cannot play.");
+        }
     }
-
-    for (String filename : filenames) {
-      println(filename);
-    }
-  }
 }
-*/
