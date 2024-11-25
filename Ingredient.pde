@@ -1,8 +1,4 @@
-enum AlcoholType{
-    WHISKEY(0,"Whiskey",40,10,10,new int[] {255, 0, 0},new MP3Sound(this, "data/sounds/b_whiskey.wav")),
-    VODKA(1,"Vodka",40,10,10,new int[] {255, 0, 0},new MP3Sound(this,"data/sounds/b_vodka.wav")),
-    GIN(2,"Gin",40,10,10,new int[] {255, 0, 0},new MP3Sound(this, "data/sounds/b_vodka.wav")),
-    RUM(3,"Rum",40,10,10,new int[] {255, 0, 0},new MP3Sound(this, "data/sounds/b_rum.wav"));
+class Ingredient{
 
     private int id;
     private String name;
@@ -10,16 +6,16 @@ enum AlcoholType{
     private int phValue;
     private int amount;
     private int[] rgb;
-    MP3Sound mp3Sound; 
+    WavSound wavSound; 
 
-    AlcoholType(int id, String name, int weight, int phValue, int amount, int[] rgb, MP3Sound mp3Sound){
+    Ingredient(int id, String name, int weight, int phValue, int amount, int[] rgb, WavSound wavSound){
         this.id = id;
         this.name = name;
         this.weight = weight;
         this.phValue = phValue;
         this.amount = amount;
         this.rgb = rgb;
-        this.mp3Sound = mp3Sound;
+        this.wavSound = wavSound;
     }
 
     int getId(){
@@ -46,36 +42,9 @@ enum AlcoholType{
         return applet.color(rgb[0], rgb[1], rgb[2]);
     }
 
-    MP3Sound getMp3Sound(){
-        return mp3Sound;
+    WavSound getWavSound(){
+        return wavSound;
     }
 
 }
 
-enum JuiceType{
-    CRANBERRY,
-    PINEAPPLE,
-    ORANGE,
-    GINGERALE;
-}
-
-enum Sirup{
-    COCONUT,
-    GRENADINE,
-    BLUECURACAU,
-    ELDERFLOWER;
-}
-
-enum Garnish{
-    MINT,
-    LIMESLICES,
-    CHERRIES,
-    OLIVES;
-}
-
-class Ingredient {
-
-    Ingredient (){
-
-    }
-}

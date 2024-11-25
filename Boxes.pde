@@ -3,7 +3,7 @@ class Boxes {
   float boxHeight = 200;
   float spacing = 20;
   ArrayList<Box> boxList;
-  AlcoholType currentAlcohol;
+  Ingredient currentAlcohol;
 
   Boxes() {
 
@@ -15,8 +15,7 @@ class Boxes {
     for (int i = 0; i < 4; i++) {
       float x = startX + i * (boxWidth + spacing);
       float y = centerY - boxHeight / 2;
-      int randomColor = color(255);
-      Box box = new Box(x, y, boxWidth, boxHeight, randomColor);
+      Box box = new Box(x, y, boxWidth, boxHeight, 255);
       boxList.add(box);
     }
   }
@@ -29,40 +28,16 @@ class Boxes {
   }
 
   // Check if a point is inside any box
-  void checkPoint(float px, float py, int id) {
+  void checkPoint(float px, float py, Ingredient ingredient) {
     boolean anyHit = false; // To track if any box is hit
     for (Box box : boxList) {
       if (box.isInside(px, py)) {
-        box.setColor(color(255, 0, 0)); // Set color to red if the point is inside
+        box.setColor(color(255, 0, 0)); 
+        ingredient.getWavSound().play();
         anyHit = true;
-        getIngredients(id);
       } else {
         box.resetColor(); // Reset to default color if the point is outside
       }
-    }
-  }
-
-  void getIngredients(int id) {
-    switch(id) {
-    case 0:
-      currentAlcohol = AlcoholType.WHISKEY;
-      break;
-    case 1:
-      currentAlcohol = AlcoholType.VODKA;
-      break;
-    case 2:
-      currentAlcohol = AlcoholType.GIN;
-      break;
-    case 3:
-      currentAlcohol = AlcoholType.RUM;
-      break;
-    default:
-      currentAlcohol = null; // or handle invalid ID
-      break;
-    }
-
-    if (currentAlcohol != null) { 
-      currentAlcohol.getMp3Sound().play();
     }
   }
 }
