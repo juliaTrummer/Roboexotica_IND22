@@ -3,14 +3,12 @@ class Boxes {
   float boxHeight = 200;
   float spacing = 20;
   ArrayList<Box> boxList;
-  Ingredient currentAlcohol;
 
-  Boxes() {
-
+  Boxes(PApplet applet) {
     boxList = new ArrayList<Box>();
     float totalWidth = (4 * boxWidth) + ((4 - 1) * spacing);
-    float startX = (width - totalWidth) / 2;
-    float centerY = height / 2;
+    float startX = (applet.width - totalWidth) / 2;
+    float centerY = applet.height / 2;
 
     for (int i = 0; i < 4; i++) {
       float x = startX + i * (boxWidth + spacing);
@@ -27,17 +25,23 @@ class Boxes {
     }
   }
 
-  // Check if a point is inside any box
-  void checkPoint(float px, float py, Ingredient ingredient) {
-    boolean anyHit = false; // To track if any box is hit
-    for (Box box : boxList) {
-      if (box.isInside(px, py)) {
-        box.setColor(color(255, 0, 0)); 
-        ingredient.getWavSound().play();
-        anyHit = true;
+void ingredientsInBox(int id, float coordinateX, float coordinateY) {
+  for (Box box : boxList) {
+    // Check if the box already contains the given ID
+    if (box.getCurrentId() == id) {
+      // The ID is already in this box, ensure the box stays active
+      if (box.isInside(coordinateX, coordinateY)) {
+        box.setColor(100); // Ensure it's highlighted
       } else {
-        box.resetColor(); // Reset to default color if the point is outside
+        // If the ID moves out, clear the ingredient from this box
+        box.setHasIngredient(false, -1);
+        box.resetColor();
       }
+    } else if (!box.getHasIngredient() && box.isInside(coordinateX, coordinateY)) {
+      // If the box is empty and the ID is inside
+      box.setColor(100);
+      box.setHasIngredient(true, id);
     }
   }
+}
 }

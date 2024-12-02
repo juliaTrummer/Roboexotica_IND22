@@ -14,8 +14,8 @@ Minim minim;
 void setup() {
   size(1200, 800);
 
-  boxes = new Boxes();
-   minim = new Minim(this);
+  boxes = new Boxes(this);
+  minim = new Minim(this);
 
   createAlcoholicList();
   createJuiceList();
@@ -56,27 +56,6 @@ void createGarnishList() {
   garnishList.add(new Ingredient(13, "Grenadine", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim,"data/sounds/cranberry.mp3")));
   garnishList.add(new Ingredient(14, "Blue Curacau", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim,"data/sounds/cranberry.mp3")));
   garnishList.add(new Ingredient(15, "Elderflower", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim,"data/sounds/cranberry.mp3")));
-}
-
-Ingredient getObject(int id) {
-  if (id <= 3) {
-    return getObject(alcoholList, id);
-  } else if (id > 3 && id <= 7) {
-    return getObject(juiceList, id);
-  } else if (id > 7 && id <= 11) {
-    return getObject(sirupList, id);
-  } else {
-    return getObject(garnishList, id);
-  }
-}
-
-Ingredient getObject(ArrayList<Ingredient> ingredients, int id){
-  for(Ingredient ingredient : ingredients){
-    if(ingredient.getId()==id){
-      return ingredient;
-    }
-  }
-  return null;
 }
 
 void draw() {
@@ -123,61 +102,93 @@ void draw() {
   }
 }
 
-// Called when a new object becomes visible
 void addTuioObject(TuioObject tobj) {
   println("New object added: ID " + tobj.getSymbolID() + ", Session " + tobj.getSessionID());
+
+  int id = tobj.getSymbolID();
+  float tuioX = tobj.getScreenX(width);
+  float tuioY = tobj.getScreenY(height);
+
+  for (int i = 0; i < boxes.boxList.size(); i++) {
+    Box box = boxes.boxList.get(i);
+
+    if (box.isInside(tuioX, tuioY)) {
+      if (!box.getHasIngredient()) {
+        if (isValidIdForBox(i, id)) {
+          box.setColor(color(0, 255, 0)); // Green for valid ID
+          box.setHasIngredient(true, id);
+        } else {
+          box.setColor(color(255, 0, 0)); // Red for invalid ID
+          box.setHasIngredient(true, id); // Mark box occupied even if invalid
+        }
+      }
+    }
+  }
 }
 
-// Called when an object moves
 void updateTuioObject(TuioObject tobj) {
   println("Object updated: ID " + tobj.getSymbolID() + ", New Position (" +
     tobj.getScreenX(width) + ", " + tobj.getScreenY(height) + ")");
 
-  float tuioX = tobj.getScreenX(width); // Replace with TUIO input's x-coordinate
-  float tuioY = tobj.getScreenY(height); // Replace with TUIO input's y-coordinate
+  int id = tobj.getSymbolID();
+  float tuioX = tobj.getScreenX(width);
+  float tuioY = tobj.getScreenY(height);
 
-  boxes.checkPoint(tuioX, tuioY, getObject(tobj.getSymbolID()));
+  for (int i = 0; i < boxes.boxList.size(); i++) {
+    Box box = boxes.boxList.get(i);
+
+    if (box.isInside(tuioX, tuioY)) {
+      if (!box.getHasIngredient() || box.getCurrentId() == id) {
+        if (isValidIdForBox(i, id)) {
+          box.setColor(color(0, 255, 0)); // Green for valid ID
+          box.setHasIngredient(true, id);
+        } else {
+          box.setColor(color(255, 0, 0)); // Red for invalid ID
+          box.setHasIngredient(true, id);
+        }
+      }
+    } else if (box.getCurrentId() == id) {
+      box.setHasIngredient(false, -1); // Remove ingredient if moved out
+    }
+  }
 }
 
 // Called when an object is removed
 void removeTuioObject(TuioObject tobj) {
   println("Object removed: ID " + tobj.getSymbolID());
-  
+
+  int id = tobj.getSymbolID();
+
+  for (Box box : boxes.boxList) {
+    if (box.getCurrentId() == id) {
+      box.setHasIngredient(false, -1); // Reset box state
+      break;
+    }
+  }
+
+  // Check all boxes to ensure proper color for any remaining invalid IDs
+  for (int i = 0; i < boxes.boxList.size(); i++) {
+    Box box = boxes.boxList.get(i);
+
+    if (box.getHasIngredient() && !isValidIdForBox(i, box.getCurrentId())) {
+      box.setColor(color(255, 0, 0)); // Highlight invalid IDs
+    } else if (!box.getHasIngredient()) {
+      box.resetColor(); // Reset to default if empty
+    }
+  }
 }
 
-// Called when a new cursor is detected
-void addTuioCursor(TuioCursor tcur) {
-  println("New cursor added: Cursor ID " + tcur.getCursorID() + ", Session " + tcur.getSessionID());
-}
-
-// Called when a cursor moves
-void updateTuioCursor(TuioCursor tcur) {
-  println("Cursor updated: Cursor ID " + tcur.getCursorID() + ", New Position (" +
-    tcur.getScreenX(width) + ", " + tcur.getScreenY(height) + ")");
-}
-
-// Called when a cursor is removed
-void removeTuioCursor(TuioCursor tcur) {
-  println("Cursor removed: Cursor ID " + tcur.getCursorID());
-}
-
-// Called when a new blob is detected
-void addTuioBlob(TuioBlob tblb) {
-  println("New blob added: Blob ID " + tblb.getSessionID());
-}
-
-// Called when a blob moves
-void updateTuioBlob(TuioBlob tblb) {
-  println("Blob updated: Blob ID " + tblb.getSessionID() + ", New Position (" +
-    tblb.getScreenX(width) + ", " + tblb.getScreenY(height) + ")");
-}
-
-// Called when a blob is removed
-void removeTuioBlob(TuioBlob tblb) {
-  println("Blob removed: Blob ID " + tblb.getSessionID());
-}
 
 // Called after every TUIO frame (use to update the display)
 void refresh(TuioTime frameTime) {
   // This method is called once per TUIO frame.
+}
+
+// Helper method to validate if an ID is in the correct range for a box
+boolean isValidIdForBox(int boxIndex, int id) {
+  if (boxIndex == 0) return id >= 0 && id <= 3;  // First box: IDs 0-3
+  if (boxIndex == 1) return id >= 4 && id <= 7;  // Second box: IDs 4-7
+  if (boxIndex == 2) return id >= 8 && id <= 11; // Third box: IDs 8-11
+  if (boxIndex == 3) return id >= 12 && id <= 15; // Fourth box: IDs 12-15
+  return false; // Invalid for any box
 }
