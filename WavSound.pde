@@ -10,24 +10,21 @@ public class WavSound {
         sound = minim.loadFile(filePath);
     }
 
-    // Method to play the sound
-    public void play() {
-        if (!sound.isPlaying()) {
-            sound.rewind();
-            sound.play();
-        }
+    public void playFromPosition(float position) {
+        sound.cue((int) position);
+        sound.loop();
     }
 
-    // Method to stop the sound
+    public int getCurrentPosition() {
+        return sound.position();
+    }
+
     public void stop() {
-        if (sound.isPlaying()) {
-            sound.pause();
-            sound.rewind();
-        }
+        sound.pause();
+        sound.rewind();
     }
 
-    // Clean up the resources
     public void close() {
-        sound.close(); // Release the AudioPlayer resources
+        sound.close();
     }
 }
