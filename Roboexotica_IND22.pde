@@ -4,21 +4,24 @@ import processing.sound.SoundFile;
 import ddf.minim.*;
 
 TuioProcessing tuioClient;
-Boxes boxes;
+Circles circles;
 ArrayList<Ingredient> alcoholList;
 ArrayList<Ingredient> juiceList;
 ArrayList<Ingredient> sirupList;
 ArrayList<Ingredient> garnishList;
 Minim minim;
 
+SecondaryWindow secondWindow;
+
 SoundManager soundManager;
 
 void setup() {
-  size(1200, 800);
+  size(1920, 1080);
 
-  boxes = new Boxes(this);
+  circles = new Circles(this);
   minim = new Minim(this);
   soundManager = new SoundManager();
+  secondWindow = new SecondaryWindow();
 
   createAlcoholicList();
   createJuiceList();
@@ -65,7 +68,7 @@ void draw() {
 
   background(0); // Clear the screen
   fill(255);
-  boxes.drawBoxes();
+  circles.drawCircles();
   soundManager.updatePosition();
 
   // Display all active TUIO objects
@@ -113,23 +116,20 @@ void addTuioObject(TuioObject tobj) {
   float tuioX = tobj.getScreenX(width);
   float tuioY = tobj.getScreenY(height);
 
-  for (int i = 0; i < boxes.boxList.size(); i++) {
-    Box box = boxes.boxList.get(i);
-
-    if (box.isInside(tuioX, tuioY)) {
-      if (!box.getHasIngredient()) {
-        if (isValidIdForBox(i, id)) {
-          box.setColor(color(0, 255, 0)); // Green for valid ID
-          box.setHasIngredient(true, id);
+  for (Circle circle : circles.circleList) {
+    if (circle.isInside(tuioX, tuioY)) {
+      if (circle.getHasIngredient() == false || circle.getCurrentId() == id) {
+        if (isValidIdForCircle(circle, id)) {
+          circle.setColour(color(0, 255, 0)); // Green for valid ID
+          circle.setHasIngredient(true, id);
           Ingredient ingredient = getIngredientById(id);
           if (ingredient != null) {
-            WavSound sound = ingredient.getWavSound();
-            soundManager.addSound(id, sound);
-            soundManager.start(); // Start playback if not already playing
+            soundManager.addSound(id, ingredient.getWavSound());
+            soundManager.start(); // Ensure synchronized playback
           }
         } else {
-          box.setColor(color(255, 0, 0)); // Red for invalid ID
-          box.setHasIngredient(true, id); // Mark box occupied even if invalid
+          circle.setColour(color(255, 0, 0)); // Red for invalid ID
+          circle.setHasIngredient(true, id);
         }
       }
     }
@@ -137,80 +137,45 @@ void addTuioObject(TuioObject tobj) {
 }
 
 void updateTuioObject(TuioObject tobj) {
-    println("Object updated: ID " + tobj.getSymbolID() + ", New Position (" +
-        tobj.getScreenX(width) + ", " + tobj.getScreenY(height) + ")");
+  println("Object updated: ID " + tobj.getSymbolID() + ", New Position (" +
+    tobj.getScreenX(width) + ", " + tobj.getScreenY(height) + ")");
 
-    int id = tobj.getSymbolID();
-    float tuioX = tobj.getScreenX(width);
-    float tuioY = tobj.getScreenY(height);
+  int id = tobj.getSymbolID();
+  float tuioX = tobj.getScreenX(width);
+  float tuioY = tobj.getScreenY(height);
 
-    boolean isInsideValidBox = false;
-
-    for (int i = 0; i < boxes.boxList.size(); i++) {
-        Box box = boxes.boxList.get(i);
-
-        if (box.isInside(tuioX, tuioY)) {
-            isInsideValidBox = true;
-
-            if (!box.getHasIngredient() || box.getCurrentId() == id) {
-                if (isValidIdForBox(i, id)) {
-                    // Valid placement
-                    box.setColor(color(0, 255, 0)); // Green for valid ID
-                    if (!box.getHasIngredient()) {
-                        box.setHasIngredient(true, id);
-                        Ingredient ingredient = getIngredientById(id);
-                        if (ingredient != null) {
-                            soundManager.addSound(id, ingredient.getWavSound());
-                            soundManager.start(); // Ensure synchronized playback
-                        }
-                    }
-                } else {
-                    // Invalid placement
-                    box.setColor(color(255, 0, 0)); // Red for invalid ID
-                    if (!box.getHasIngredient()) {
-                        box.setHasIngredient(true, id);
-                    }
-                }
-            }
-        } else if (box.getCurrentId() == id) {
-            // If the ID is moved out of this box, reset the box
-            box.setHasIngredient(false, -1);
-            box.resetColor();
-            soundManager.removeSound(id);
+  for (Circle circle : circles.circleList) {
+    if (circle.isInside(tuioX, tuioY)) {
+      if (!circle.getHasIngredient() || circle.getCurrentId() == id) {
+        if (isValidIdForCircle(circle, id)) {
+          circle.setColour(color(0, 255, 0)); // Green for valid ID
+          circle.setHasIngredient(true, id);
+          Ingredient ingredient = getIngredientById(id);
+          if (ingredient != null) {
+            soundManager.addSound(id, ingredient.getWavSound());
+            soundManager.start(); // Ensure synchronized playback
+          }
+        } else {
+          circle.setColour(color(255, 0, 0)); // Red for invalid ID
+          circle.setHasIngredient(true, id);
         }
+      }
+    } else if (circle.getCurrentId() == id) {
+      circle.setHasIngredient(false, -1); // Clear the ingredient
+      circle.resetColour(); // Reset color to default
+      soundManager.removeSound(id);
     }
-
-    // If the object is not inside any box, remove its sound
-    if (!isInsideValidBox) {
-        soundManager.removeSound(id);
-    }
-
-    // Synchronize playback positions for all sounds
-    soundManager.updatePosition();
+  }
 }
 
-// Called when an object is removed
 void removeTuioObject(TuioObject tobj) {
   println("Object removed: ID " + tobj.getSymbolID());
 
   int id = tobj.getSymbolID();
-
-  for (Box box : boxes.boxList) {
-    if (box.getCurrentId() == id) {
-      box.setHasIngredient(false, -1); // Reset box state
-      break;
-    }
-  }
-
-  // Check all boxes to ensure proper color for any remaining invalid IDs
-  for (int i = 0; i < boxes.boxList.size(); i++) {
-    Box box = boxes.boxList.get(i);
-
-    if (box.getHasIngredient() && !isValidIdForBox(i, box.getCurrentId())) {
-      box.setColor(color(255, 0, 0)); // Highlight invalid IDs
-    } else if (!box.getHasIngredient()) {
-      box.resetColor();
-      Ingredient ingredient = getIngredientById(id);
+  for (Circle circle : circles.circleList) {
+    if (circle.getCurrentId() == id) {
+      circle.setHasIngredient(false, -1); // Clear ingredient
+      circle.resetColour(); // Reset color
       soundManager.removeSound(id);
     }
   }
@@ -247,4 +212,13 @@ Ingredient getIngredientFromList(ArrayList<Ingredient> list, int id) {
     }
   }
   return null;
+}
+
+boolean isValidIdForCircle(Circle circle, int id) {
+  int index = circles.circleList.indexOf(circle); // Get circle index in the list
+  if (index == 0 && id >= 0 && id <= 3) return true;      // First circle: IDs 0-3
+  if (index == 1 && id >= 4 && id <= 7) return true;      // Second circle: IDs 4-7
+  if (index == 2 && id >= 8 && id <= 11) return true;     // Third circle: IDs 8-11
+  if (index == 3 && id >= 12 && id <= 15) return true;    // Fourth circle: IDs 12-15
+  return false; // Invalid ID for the circle
 }
