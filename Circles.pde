@@ -7,11 +7,11 @@ class Circles {
         circleList = new ArrayList<Circle>();
         float totalWidth = (4 * (radius * 2)) + ((4 - 1) * spacing);
         float startX = (applet.width - totalWidth) / 2 + radius;
-        float centerY = applet.height / 2;
+        float centerY = applet.height / 2 + 150;
 
         for (int i = 0; i < 4; i++) {
             float centerX = startX + i * ((radius * 2) + spacing);
-            Circle circle = new Circle(centerX, centerY, radius);
+            Circle circle = new Circle(centerX, centerY, radius, getColour(i));
             circleList.add(circle);
         }
     }
@@ -22,6 +22,22 @@ class Circles {
             circle.drawCircle();
         }
     }
+
+    int getColour(int state) {
+    switch (state) {
+        case 0:
+            return color(126,241,75); // Green
+        case 1:
+            return color(242,19,164); // Pink
+        case 2:
+            return color(18,25,191); // Blue
+        case 3:
+            return color(242,185,10); // Yellow
+        default:
+            return color(255); // Default color (white)
+    }
+}
+
 
     // Check if an ingredient is inside a circle
     void ingredientsInCircle(int id, float coordinateX, float coordinateY) {

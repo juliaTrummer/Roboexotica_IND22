@@ -21,7 +21,7 @@ void setup() {
   circles = new Circles(this);
   minim = new Minim(this);
   soundManager = new SoundManager();
-  secondWindow = new SecondaryWindow();
+  //secondWindow = new SecondaryWindow();
 
   createAlcoholicList();
   createJuiceList();
@@ -66,7 +66,7 @@ void createGarnishList() {
 
 void draw() {
 
-  background(0); // Clear the screen
+  background(0);
   fill(255);
   circles.drawCircles();
   soundManager.updatePosition();
@@ -120,7 +120,7 @@ void addTuioObject(TuioObject tobj) {
     if (circle.isInside(tuioX, tuioY)) {
       if (circle.getHasIngredient() == false || circle.getCurrentId() == id) {
         if (isValidIdForCircle(circle, id)) {
-          circle.setColour(color(0, 255, 0)); // Green for valid ID
+          circle.setColour(color(0, 255, 0, 70)); // Green for valid ID
           circle.setHasIngredient(true, id);
           Ingredient ingredient = getIngredientById(id);
           if (ingredient != null) {
@@ -128,7 +128,7 @@ void addTuioObject(TuioObject tobj) {
             soundManager.start(); // Ensure synchronized playback
           }
         } else {
-          circle.setColour(color(255, 0, 0)); // Red for invalid ID
+          circle.setColour(color(255, 0, 0, 70)); // Red for invalid ID
           circle.setHasIngredient(true, id);
         }
       }
@@ -148,7 +148,7 @@ void updateTuioObject(TuioObject tobj) {
     if (circle.isInside(tuioX, tuioY)) {
       if (!circle.getHasIngredient() || circle.getCurrentId() == id) {
         if (isValidIdForCircle(circle, id)) {
-          circle.setColour(color(0, 255, 0)); // Green for valid ID
+          circle.setColour(color(0, 255, 0, 70)); // Green for valid ID
           circle.setHasIngredient(true, id);
           Ingredient ingredient = getIngredientById(id);
           if (ingredient != null) {
@@ -156,7 +156,7 @@ void updateTuioObject(TuioObject tobj) {
             soundManager.start(); // Ensure synchronized playback
           }
         } else {
-          circle.setColour(color(255, 0, 0)); // Red for invalid ID
+          circle.setColour(color(255, 0, 0, 70)); // Red for invalid ID
           circle.setHasIngredient(true, id);
         }
       }

@@ -5,7 +5,7 @@ class SecondaryWindow extends PApplet {
   }
 
   public void settings() {
-    size(300, 300);
+    size(1900, 1080);
   }
 
   public void setup() {
