@@ -5,6 +5,7 @@ import ddf.minim.*;
 
 TuioProcessing tuioClient;
 Circles circles;
+Shaker shaker;
 ArrayList<Ingredient> alcoholList;
 ArrayList<Ingredient> juiceList;
 ArrayList<Ingredient> sirupList;
@@ -21,7 +22,8 @@ void setup() {
   circles = new Circles(this);
   minim = new Minim(this);
   soundManager = new SoundManager();
-  //secondWindow = new SecondaryWindow();
+  shaker = new Shaker(width - 200, 200, 150, new Sound (minim, "data/sounds/shake_Sound.mp3"));
+  secondWindow = new SecondaryWindow();
 
   createAlcoholicList();
   createJuiceList();
@@ -34,34 +36,34 @@ void setup() {
 
 void createAlcoholicList () {
   alcoholList = new ArrayList();
-  alcoholList.add(new Ingredient(0, "Whiskey", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/b_whiskey.mp3")));
-  alcoholList.add(new Ingredient(1, "Vodka", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/b_vodka.mp3")));
-  alcoholList.add(new Ingredient(2, "Gin", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/b_gin.mp3")));
-  alcoholList.add(new Ingredient(3, "Rum", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/b_rum.mp3")));
+  alcoholList.add(new Ingredient(0, "Whiskey", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/b_whiskey.mp3")));
+  alcoholList.add(new Ingredient(1, "Vodka", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/b_vodka.mp3")));
+  alcoholList.add(new Ingredient(2, "Gin", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/b_gin.mp3")));
+  alcoholList.add(new Ingredient(3, "Rum", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/b_rum.mp3")));
 }
 
 void createJuiceList() {
   juiceList = new ArrayList();
-  juiceList.add(new Ingredient(4, "Cranberry", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/f_cranberry.mp3")));
-  juiceList.add(new Ingredient(5, "Pineapple", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/f_pineapple.mp3")));
-  juiceList.add(new Ingredient(6, "Orange", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/f_orange.mp3")));
-  juiceList.add(new Ingredient(7, "Gingerale", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/f_ginger_ale.mp3")));
+  juiceList.add(new Ingredient(4, "Cranberry", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/f_cranberry.mp3")));
+  juiceList.add(new Ingredient(5, "Pineapple", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/f_pineapple.mp3")));
+  juiceList.add(new Ingredient(6, "Orange", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/f_orange.mp3")));
+  juiceList.add(new Ingredient(7, "Gingerale", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/f_ginger_ale.mp3")));
 }
 
 void createSirupList() {
   sirupList = new ArrayList();
-  sirupList.add(new Ingredient(8, "Coconut", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/s_coconut.mp3")));
-  sirupList.add(new Ingredient(9, "Grenadine", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/s_grenadine.mp3")));
-  sirupList.add(new Ingredient(10, "Blue Curacau", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/s_blue_curacao.mp3")));
-  sirupList.add(new Ingredient(11, "Elderflower", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/s_elderflower.mp3")));
+  sirupList.add(new Ingredient(8, "Coconut", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/s_coconut.mp3")));
+  sirupList.add(new Ingredient(9, "Grenadine", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/s_grenadine.mp3")));
+  sirupList.add(new Ingredient(10, "Blue Curacau", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/s_blue_curacao.mp3")));
+  sirupList.add(new Ingredient(11, "Elderflower", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/s_elderflower.mp3")));
 }
 
 void createGarnishList() {
   garnishList = new ArrayList();
-  garnishList.add(new Ingredient(12, "Lime Slices", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/t_lime_slices.mp3")));
-  garnishList.add(new Ingredient(13, "Mint", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/t_mint.mp3")));
-  garnishList.add(new Ingredient(14, "Olives", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/t_olives.mp3")));
-  garnishList.add(new Ingredient(15, "Cocktail Cherries", 40, 10, 10, new int[] {255, 0, 0}, new WavSound(minim, "data/sounds/t_cocktail_cherries.mp3")));
+  garnishList.add(new Ingredient(12, "Lime Slices", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/t_lime_slices.mp3")));
+  garnishList.add(new Ingredient(13, "Mint", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/t_mint.mp3")));
+  garnishList.add(new Ingredient(14, "Olives", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/t_olives.mp3")));
+  garnishList.add(new Ingredient(15, "Cocktail Cherries", 40, 10, 10, new int[] {255, 0, 0}, new Sound(minim, "data/sounds/t_cocktail_cherries.mp3")));
 }
 
 void draw() {
@@ -69,6 +71,7 @@ void draw() {
   background(0);
   fill(255);
   circles.drawCircles();
+  shaker.drawShaker();
   soundManager.updatePosition();
 
   // Display all active TUIO objects
@@ -115,7 +118,13 @@ void addTuioObject(TuioObject tobj) {
   int id = tobj.getSymbolID();
   float tuioX = tobj.getScreenX(width);
   float tuioY = tobj.getScreenY(height);
-
+  if(tobj.getSymbolID()==16){
+    if(shaker.isInside(tuioX, tuioY)){
+      shaker.setId(tobj.getSymbolID());
+    }else{
+      shaker.clearId();
+    }
+  }
   for (Circle circle : circles.circleList) {
     if (circle.isInside(tuioX, tuioY)) {
       if (circle.getHasIngredient() == false || circle.getCurrentId() == id) {
@@ -124,7 +133,7 @@ void addTuioObject(TuioObject tobj) {
           circle.setHasIngredient(true, id);
           Ingredient ingredient = getIngredientById(id);
           if (ingredient != null) {
-            soundManager.addSound(id, ingredient.getWavSound());
+            soundManager.addSound(id, ingredient.getSound());
             soundManager.start(); // Ensure synchronized playback
           }
         } else {
@@ -144,6 +153,13 @@ void updateTuioObject(TuioObject tobj) {
   float tuioX = tobj.getScreenX(width);
   float tuioY = tobj.getScreenY(height);
 
+  if(tobj.getSymbolID()==16){
+    if(shaker.isInside(tuioX, tuioY)){
+      shaker.setId(tobj.getSymbolID());
+    }else{
+      shaker.clearId();
+    }
+  }
   for (Circle circle : circles.circleList) {
     if (circle.isInside(tuioX, tuioY)) {
       if (!circle.getHasIngredient() || circle.getCurrentId() == id) {
@@ -152,7 +168,7 @@ void updateTuioObject(TuioObject tobj) {
           circle.setHasIngredient(true, id);
           Ingredient ingredient = getIngredientById(id);
           if (ingredient != null) {
-            soundManager.addSound(id, ingredient.getWavSound());
+            soundManager.addSound(id, ingredient.getSound());
             soundManager.start(); // Ensure synchronized playback
           }
         } else {
@@ -172,6 +188,11 @@ void removeTuioObject(TuioObject tobj) {
   println("Object removed: ID " + tobj.getSymbolID());
 
   int id = tobj.getSymbolID();
+  if(tobj.getSymbolID()==16){
+      shaker.clearId();
+      soundManager.stop();
+    }
+  
   for (Circle circle : circles.circleList) {
     if (circle.getCurrentId() == id) {
       circle.setHasIngredient(false, -1); // Clear ingredient

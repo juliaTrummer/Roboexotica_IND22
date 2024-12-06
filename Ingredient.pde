@@ -6,16 +6,16 @@ class Ingredient{
     private int phValue;
     private int amount;
     private int[] rgb;
-    WavSound wavSound; 
+    Sound sound; 
 
-    Ingredient(int id, String name, int weight, int phValue, int amount, int[] rgb, WavSound wavSound){
+    Ingredient(int id, String name, int weight, int phValue, int amount, int[] rgb, Sound sound){
         this.id = id;
         this.name = name;
         this.weight = weight;
         this.phValue = phValue;
         this.amount = amount;
         this.rgb = rgb;
-        this.wavSound = wavSound;
+        this.sound = sound;
     }
 
     int getId(){
@@ -42,8 +42,8 @@ class Ingredient{
         return applet.color(rgb[0], rgb[1], rgb[2]);
     }
 
-    WavSound getWavSound(){
-        return wavSound;
+    Sound getSound(){
+        return sound;
     }
 
 }

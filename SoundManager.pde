@@ -1,7 +1,7 @@
 import java.util.HashMap;
 
 public class SoundManager {
-    private HashMap<Integer, WavSound> activeSounds;
+    private HashMap<Integer, Sound> activeSounds;
     private boolean isPlaying;
     private int syncPosition;
 
@@ -15,7 +15,7 @@ public class SoundManager {
      * Adds a sound associated with a specific ID.
      * If playback is ongoing, the new sound starts playing in sync.
      */
-    public void addSound(int id, WavSound sound) {
+    public void addSound(int id, Sound sound) {
         if (!activeSounds.containsKey(id)) {
             activeSounds.put(id, sound);
             if (isPlaying) {
@@ -30,7 +30,7 @@ public class SoundManager {
      */
     public void removeSound(int id) {
         if (activeSounds.containsKey(id)) {
-            WavSound sound = activeSounds.get(id);
+            Sound sound = activeSounds.get(id);
             sound.stop();
             activeSounds.remove(id);
 
@@ -48,7 +48,7 @@ public class SoundManager {
     public void start() {
         if (!isPlaying) {
             syncPosition = 0; // Start from the beginning
-            for (WavSound sound : activeSounds.values()) {
+            for (Sound sound : activeSounds.values()) {
                 sound.playFromPosition(syncPosition);
             }
             isPlaying = true;
@@ -62,7 +62,7 @@ public class SoundManager {
     public void updatePosition() {
         if (isPlaying && !activeSounds.isEmpty()) {
             // Update sync position based on any active sound
-            WavSound firstSound = activeSounds.values().iterator().next();
+            Sound firstSound = activeSounds.values().iterator().next();
             syncPosition = firstSound.getCurrentPosition();
         }
     }
@@ -71,7 +71,7 @@ public class SoundManager {
      * Stops all active sounds and resets playback state.
      */
     public void stop() {
-        for (WavSound sound : activeSounds.values()) {
+        for (Sound sound : activeSounds.values()) {
             sound.stop();
         }
         activeSounds.clear();

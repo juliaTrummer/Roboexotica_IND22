@@ -1,10 +1,10 @@
 import ddf.minim.*;
 
-public class WavSound {
+public class Sound {
     private AudioPlayer sound; 
     private Minim minim;
 
-    public WavSound(Minim minim, String filePath) {
+    public Sound(Minim minim, String filePath) {
         this.minim = minim;
         println(filePath);
         sound = minim.loadFile(filePath);
@@ -22,6 +22,10 @@ public class WavSound {
     public void stop() {
         sound.pause();
         sound.rewind();
+    }
+
+    public void play(){
+        sound.play();
     }
 
     public void close() {
