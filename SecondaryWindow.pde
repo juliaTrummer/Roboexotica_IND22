@@ -1,13 +1,22 @@
-// Secondary Window Class
 class SecondaryWindow extends PApplet {
-  
-  float yOffset = 0;  // Offset for vertical animation
-float speed = 2;    // Speed of the animation
-float alpha = 0;    // Transparency value for fading
-boolean fadingIn = true; // Direction of fade
 
-  SecondaryWindow() {
+  float speed = 2;
+  float alpha = 0;
+  boolean fadingIn = true;
+  float titleSize = height * 1.5;
+  PFont titleFont, baseFont;
+  boolean intro, outro;
+
+  PImage introScreen; 
+  Card card;
+
+  SecondaryWindow(PImage introScreen) {
     PApplet.runSketch(new String[] {"Secondary Window"}, this);
+    this.titleFont = titleFont;
+    this.baseFont = baseFont;
+    this.intro = true;
+    this.outro = false;
+    this.introScreen = introScreen;
   }
 
   public void settings() {
@@ -19,27 +28,30 @@ boolean fadingIn = true; // Direction of fade
     background(0);
   }
 
- void draw() {
-  background(240); // Light gray background
+  public void draw() {
+    background(0);
 
-  // Main title animation
-  textSize(100); // Set font size for the title
-  fill(50); // Dark gray color
-  textAlign(CENTER, CENTER); // Align text to center
-  text("Here should be text", width / 2, height / 2 + yOffset);
-  
-
-  // Subtitle fade animation
-  if (fadingIn) {
-    alpha += 2; // Increase alpha
-    if (alpha >= 255) fadingIn = false; // Reverse when fully visible
-  } else {
-    alpha -= 2; // Decrease alpha
-    if (alpha <= 0) fadingIn = true; // Reverse when fully transparent
+    if (intro==true) {
+      drawIntroScreen();
+    }
+    
+    if(outro==true){
+      card.drawPhoto();
+    }
   }
 
-  fill(100, alpha); // Text color with alpha transparency
-  textSize(24); // Smaller font size for subtitle
-  text("Here should be another text", width / 2, height / 2 + 70);
-}
+  void changeScreen() {
+    intro = false;
+  }
+
+  void setCard(PImage img) {
+      this.card = new Card(img, this);  // Pass the context to the Card
+      intro = false;
+      outro = true;
+  }
+
+  void drawIntroScreen() {
+   introScreen.resize(width, height);
+   image(introScreen, 0, 0);
+  }
 }

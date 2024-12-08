@@ -6,7 +6,7 @@ public class Sound {
 
     public Sound(Minim minim, String filePath) {
         this.minim = minim;
-        println(filePath);
+        //println(filePath);
         sound = minim.loadFile(filePath);
     }
 

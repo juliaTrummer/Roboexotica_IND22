@@ -6,24 +6,26 @@ import ddf.minim.*;
 TuioProcessing tuioClient;
 Circles circles;
 Shaker shaker;
-ArrayList<Ingredient> alcoholList;
-ArrayList<Ingredient> juiceList;
-ArrayList<Ingredient> sirupList;
-ArrayList<Ingredient> garnishList;
+boolean cocktailShaken;
+
+ArrayList<Ingredient> alcoholList, juiceList, sirupList, garnishList;
 Minim minim;
+SoundManager soundManager;
+
+boolean stepOne = true;
+boolean stepTwo, stepThree = false;
 
 SecondaryWindow secondWindow;
 
-SoundManager soundManager;
-
 void setup() {
-  size(1920, 1080);
+  fullScreen();
 
   circles = new Circles(this);
   minim = new Minim(this);
   soundManager = new SoundManager();
   shaker = new Shaker(width - 200, 200, 150, new Sound (minim, "data/sounds/shake_Sound.mp3"));
-  secondWindow = new SecondaryWindow();
+
+  secondWindow = new SecondaryWindow(loadImage("data/IntroScreen.jpeg"));
 
   createAlcoholicList();
   createJuiceList();
@@ -68,11 +70,13 @@ void createGarnishList() {
 
 void draw() {
 
-  background(0);
-  fill(255);
-  circles.drawCircles();
-  shaker.drawShaker();
-  soundManager.updatePosition();
+  if(stepOne == true){
+    drawMainScreen();
+  }else if(stepTwo == true){
+    drwaWaitingScreen();
+  }else if(stepThree == true){
+    //drawOutroScreen();
+  }
 
   // Display all active TUIO objects
   for (TuioObject tobj : tuioClient.getTuioObjectList()) {
@@ -86,30 +90,6 @@ void draw() {
     text("ID: " + tobj.getSymbolID(), x, y - 30); // Display object ID
     text("Angle: " + degrees(tobj.getAngle()), x, y + 30); // Display angle
   }
-
-  // Display all active TUIO cursors
-  for (TuioCursor tcur : tuioClient.getTuioCursorList()) {
-    fill(255, 0, 0); // Red for cursors
-    noStroke();
-    float x = tcur.getScreenX(width);
-    float y = tcur.getScreenY(height);
-    ellipse(x, y, 20, 20);
-    fill(255);
-    textAlign(CENTER);
-    text("Cursor: " + tcur.getCursorID(), x, y - 20);
-  }
-
-  // Display all active TUIO blobs
-  for (TuioBlob tblb : tuioClient.getTuioBlobList()) {
-    fill(0, 0, 255); // Blue for blobs
-    noStroke();
-    float x = tblb.getScreenX(width);
-    float y = tblb.getScreenY(height);
-    ellipse(x, y, 40, 40);
-    fill(255);
-    textAlign(CENTER);
-    text("Blob: " + tblb.getSessionID(), x, y - 20);
-  }
 }
 
 void addTuioObject(TuioObject tobj) {
@@ -118,19 +98,14 @@ void addTuioObject(TuioObject tobj) {
   int id = tobj.getSymbolID();
   float tuioX = tobj.getScreenX(width);
   float tuioY = tobj.getScreenY(height);
-  if(tobj.getSymbolID()==16){
-    if(shaker.isInside(tuioX, tuioY)){
-      shaker.setId(tobj.getSymbolID());
-    }else{
-      shaker.clearId();
-    }
-  }
+  
   for (Circle circle : circles.circleList) {
-    if (circle.isInside(tuioX, tuioY)) {
+    if (circle.isInside(tuioX, tuioY)&&stepOne==true) {
       if (circle.getHasIngredient() == false || circle.getCurrentId() == id) {
         if (isValidIdForCircle(circle, id)) {
           circle.setColour(color(0, 255, 0, 70)); // Green for valid ID
           circle.setHasIngredient(true, id);
+          secondWindow.changeScreen();
           Ingredient ingredient = getIngredientById(id);
           if (ingredient != null) {
             soundManager.addSound(id, ingredient.getSound());
@@ -153,15 +128,8 @@ void updateTuioObject(TuioObject tobj) {
   float tuioX = tobj.getScreenX(width);
   float tuioY = tobj.getScreenY(height);
 
-  if(tobj.getSymbolID()==16){
-    if(shaker.isInside(tuioX, tuioY)){
-      shaker.setId(tobj.getSymbolID());
-    }else{
-      shaker.clearId();
-    }
-  }
   for (Circle circle : circles.circleList) {
-    if (circle.isInside(tuioX, tuioY)) {
+    if (circle.isInside(tuioX, tuioY)&&stepOne==true) {
       if (!circle.getHasIngredient() || circle.getCurrentId() == id) {
         if (isValidIdForCircle(circle, id)) {
           circle.setColour(color(0, 255, 0, 70)); // Green for valid ID
@@ -188,11 +156,18 @@ void removeTuioObject(TuioObject tobj) {
   println("Object removed: ID " + tobj.getSymbolID());
 
   int id = tobj.getSymbolID();
-  if(tobj.getSymbolID()==16){
-      shaker.clearId();
-      soundManager.stop();
-    }
-  
+  if (tobj.getSymbolID()==16) {
+    shaker.clearId();
+    soundManager.stop();
+    stepTwo = true;
+    stepOne = false;
+
+    secondWindow.setCard(loadImage("data/Animation.jpg"));
+
+    //create qr 
+    //repeat
+  }
+
   for (Circle circle : circles.circleList) {
     if (circle.getCurrentId() == id) {
       circle.setHasIngredient(false, -1); // Clear ingredient
@@ -201,18 +176,12 @@ void removeTuioObject(TuioObject tobj) {
     }
   }
 }
+
 // Called after every TUIO frame (use to update the display)
 void refresh(TuioTime frameTime) {
   // This method is called once per TUIO frame.
 }
-// Helper method to validate if an ID is in the correct range for a box
-boolean isValidIdForBox(int boxIndex, int id) {
-  if (boxIndex == 0) return id >= 0 && id <= 3;  // First box: IDs 0-3
-  if (boxIndex == 1) return id >= 4 && id <= 7;  // Second box: IDs 4-7
-  if (boxIndex == 2) return id >= 8 && id <= 11; // Third box: IDs 8-11
-  if (boxIndex == 3) return id >= 12 && id <= 15; // Fourth box: IDs 12-15
-  return false; // Invalid for any box
-}
+
 Ingredient getIngredientById(int id) {
   if (id >= 0 && id <= 3) {
     return getIngredientFromList(alcoholList, id);
@@ -241,5 +210,18 @@ boolean isValidIdForCircle(Circle circle, int id) {
   if (index == 1 && id >= 4 && id <= 7) return true;      // Second circle: IDs 4-7
   if (index == 2 && id >= 8 && id <= 11) return true;     // Third circle: IDs 8-11
   if (index == 3 && id >= 12 && id <= 15) return true;    // Fourth circle: IDs 12-15
-  return false; // Invalid ID for the circle
+  return false;
+}
+
+void drawMainScreen() {
+  background(0);
+  fill(255);
+  circles.drawCircles();
+  shaker.drawShaker();
+  soundManager.updatePosition();
+}
+
+void drwaWaitingScreen(){
+  background(0);
+  
 }
