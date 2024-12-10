@@ -12,7 +12,7 @@ class Shaker {
     }
 
     void drawShaker() {
-        noFill();
+        fill(30, 255, 255, 64);
         stroke(colour);
         ellipse(x, y, radius * 2, radius * 2);
     }
@@ -27,15 +27,7 @@ class Shaker {
         return (dx * dx + dy * dy <= radius * radius); // Check distance from center
     }
 
-    void setId(int id) {
-        this.currentId = id;
-        setColor(color(0, 255, 0)); // Green when ID is present
-        sound.stop();
-    }
-
-    void clearId() {
-        this.currentId = -1;
-        setColor(color(255, 0, 0)); // Red when no ID
-        sound.play();
+    Sound getSound(){
+        return this.sound;
     }
 }

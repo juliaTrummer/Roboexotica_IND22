@@ -29,18 +29,21 @@ Set<Integer> currentFrameIds = new HashSet<>();
 HashMap<Integer, Long> idLastUpdateTime = new HashMap<>();
 final long TIMEOUT_DURATION = 5000;
 
-int interval = 1000; 
-int lastSendTime = 0; 
+int interval = 1000;
+int lastSendTime = 0;
+
+long lastShakerUpdateTime = 0; // Last time the shaker's position was updated
+long shakerRemovalDelay = 2000; // 2 seconds delay (in milliseconds)
 
 void setup() {
   size(1900, 1080);
-  oscP5 = new OscP5(this, 5555); 
+  oscP5 = new OscP5(this, 5555);
   remoteLocation = new NetAddress("192.168.1.12", 5555);
 
   circles = new Circles(this);
   minim = new Minim(this);
   soundManager = new SoundManager();
-  shaker = new Shaker(width - 200, 200, 150, new Sound(minim, "data/sounds/shake_Sound.mp3"));
+  shaker = new Shaker(width - 200, 200, 150, new Sound(minim, "data/sounds/shaker.mp3"));
 
   secondWindow = new SecondaryWindow(loadImage("data/IntroScreen.jpeg"));
 
@@ -48,6 +51,8 @@ void setup() {
   createJuiceList();
   createSirupList();
   createGarnishList();
+
+  lastShakerUpdateTime = millis();
 }
 
 void createAlcoholicList() {
@@ -93,11 +98,21 @@ void draw() {
 
   // Send OSC message periodically
   if (millis() - lastSendTime > interval) {
-    sendOscMessage();
-    sendOscMessage1();
-    sendOscMessage2();
-    sendOscMessage3();
+    //sendOscMessage();
+    //sendOscMessage1();
+    //sendOscMessage2();
+    //sendOscMessage3();
+    sendOscMessage5();
     lastSendTime = millis();
+  }
+  checkShakerRemoval();
+}
+
+void checkShakerRemoval() {
+  long currentTime = millis();
+  
+  if (currentTime - lastShakerUpdateTime > shakerRemovalDelay) {
+    shaker.getSound().play();
   }
 }
 
@@ -113,6 +128,17 @@ void oscEvent(OscMessage msg) {
       return;
     }
 
+    if (id == 16) {
+      println("Shaker placed!");
+      lastShakerUpdateTime = millis();
+      if (!shaker.isInside(x, y)) {
+        fill(255, 0, 0); // Red text color
+        textSize(24);
+        text("Place Shaker back!", 20, 40); // Draw message at the top-left
+      }
+      return;
+    }
+
     // Check if the ID is new or already active
     if (!activeIds.contains(id)) {
       // New ID, handle as a new addition
@@ -120,7 +146,7 @@ void oscEvent(OscMessage msg) {
       handleObjectUpdate(id, x, y); // Add sound and process the update
     } else {
       // Existing ID, just update its position and sound if necessary
-      handleObjectUpdate(id, x, y); 
+      handleObjectUpdate(id, x, y);
     }
 
     // Check for removed items (IDs that were active but no longer in any circle)
@@ -142,10 +168,12 @@ void handleObjectUpdate(int id, float x, float y) {
   // Map x and y coordinates to screen dimensions
   float screenX = x;
   float screenY = y;
-  
+
   for (Circle circle : circles.circleList) {
+    // If the circle already contains this ID
     if (circle.getCurrentId() == id) {
-      // The circle already contains this ID
+
+      // If the ID moved out of the circle, reset the circle
       if (!circle.isInside(screenX, screenY)) {
         // ID moved out of the circle
         circle.setHasIngredient(false, -1);
@@ -158,15 +186,14 @@ void handleObjectUpdate(int id, float x, float y) {
         circle.setColour(color(0, 255, 0, 70)); // Valid ID color
         circle.setHasIngredient(true, id);
         circle.setCurrentId(id); // Link the circle with the current ID
-
         // Retrieve the ingredient and play its sound
         Ingredient ingredient = getIngredientById(id);
         if (ingredient != null) {
           soundManager.addSound(id, ingredient.getSound()); // Play sound for this ID
           soundManager.start();
-          println("Sound added and playing for ID: " + id);
+          //println("Sound added and playing for ID: " + id);
         } else {
-          println("Ingredient not found for ID: " + id);
+          //println("Ingredient not found for ID: " + id);
         }
       } else {
         // Invalid ID for this circle
@@ -177,7 +204,7 @@ void handleObjectUpdate(int id, float x, float y) {
 }
 
 void handleObjectRemoval(int id) {
-  println("Object removed: ID " + id);
+  //println("Object removed: ID " + id);
   for (Circle circle : circles.circleList) {
     if (circle.getCurrentId() == id) {
       // Clear the circle and reset its color
@@ -249,18 +276,17 @@ int extractIntFromLabel(String label) {
 void sendOscMessage() {
   OscMessage msg = new OscMessage("");
   msg.add(12345);
-  msg.add("0");
+  msg.add("5");
   msg.add(395.0);
   msg.add(690.0);
   msg.add(0.0);
   oscP5.send(msg, remoteLocation);
-
 }
 
 void sendOscMessage1() {
   OscMessage msg = new OscMessage("");
   msg.add(12345);
-  msg.add("4");
+  msg.add("6");
   msg.add(765.0);
   msg.add(690.0);
   msg.add(0.0);
@@ -270,7 +296,7 @@ void sendOscMessage1() {
 void sendOscMessage2() {
   OscMessage msg = new OscMessage("");
   msg.add(12345);
-  msg.add("9");
+  msg.add("8");
   msg.add(1135.0);
   msg.add(690.0);
   msg.add(0.0);
@@ -281,11 +307,29 @@ void sendOscMessage2() {
 void sendOscMessage3() {
   OscMessage msg = new OscMessage("");
   msg.add(12345);
-  msg.add("13");
+  msg.add("10");
   msg.add(1505.0);
-  msg.add(0.0);
+  msg.add(690.0);
   msg.add(0.0);
   oscP5.send(msg, remoteLocation);
 }
 
+void sendOscMessage4() {
+  OscMessage msg = new OscMessage("");
+  msg.add(12345);
+  msg.add("13");
+  msg.add(1505.0);
+  msg.add(690.0);
+  msg.add(0.0);
+  oscP5.send(msg, remoteLocation);
+}
 
+void sendOscMessage5() {
+  OscMessage msg = new OscMessage("");
+  msg.add(12345);
+  msg.add("16");
+  msg.add(1700.0);
+  msg.add(200.0);
+  msg.add(0.0);
+  oscP5.send(msg, remoteLocation);
+}
