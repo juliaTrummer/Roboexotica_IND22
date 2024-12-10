@@ -11,7 +11,7 @@ class Circles {
 
     for (int i = 0; i < 4; i++) {
       float centerX = startX + i * ((radius * 2) + spacing);
-      Circle circle = new Circle(centerX, centerY, radius, getColour(i), getCircleName(i));
+      Circle circle = new Circle(centerX, centerY, radius, getColour(i));
       circleList.add(circle);
     }
   }
@@ -39,42 +39,24 @@ class Circles {
   }
 
 
-void ingredientsInCircle(int id, float coordinateX, float coordinateY) {
+  // Check if an ingredient is inside a circle
+  void ingredientsInCircle(int id, float coordinateX, float coordinateY) {
     for (Circle circle : circleList) {
-        boolean isInside = circle.isInside(coordinateX, coordinateY);
-
-        if (circle.getCurrentId() == id) {
-            // Object remains in the same circle
-            if (isInside) {
-                // Do nothing, maintain the current state
-                return;
-            } else {
-                // Object moves out of the circle
-                circle.setHasIngredient(false, -1);
-                circle.resetColour();
-            }
-        } else if (!circle.getHasIngredient() && isInside) {
-            // Object enters an empty circle
-            circle.setColour(color(100, 255, 100)); // Green highlight for valid
-            circle.setHasIngredient(true, id);
+      // Check if the circle already contains the given ID
+      if (circle.getCurrentId() == id) {
+        // The ID is already in this circle, ensure the circle stays active
+        if (circle.isInside(coordinateX, coordinateY)) {
+          circle.setColour(color(100, 100, 255)); // Ensure it's highlighted
+        } else {
+          // If the ID moves out, clear the ingredient from this circle
+          circle.setHasIngredient(false, -1);
+          circle.resetColour();
         }
-    }
-}
-
-
-  String getCircleName(int state) {
-    switch (state) {
-    case 0:
-      return "Base";
-    case 1:
-      return "Sirup";
-    case 2:
-      return "Juice";
-    case 3:
-      return "Garnish";
-    default:
-      return "";
+      } else if (!circle.getHasIngredient() && circle.isInside(coordinateX, coordinateY)) {
+        // If the circle is empty and the ID is inside
+        circle.setColour(color(100, 255, 100)); // Set a highlight color
+        circle.setHasIngredient(true, id);
+      }
     }
   }
 }
-

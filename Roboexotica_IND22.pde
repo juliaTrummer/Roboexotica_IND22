@@ -91,12 +91,15 @@ void draw() {
     // Draw outro screen
   }
 
+  // Send OSC message periodically
   if (millis() - lastSendTime > interval) {
     sendOscMessage();
+    sendOscMessage1();
+    sendOscMessage2();
+    sendOscMessage3();
     lastSendTime = millis();
   }
 }
-
 
 void oscEvent(OscMessage msg) {
   if (msg.checkTypetag("isfff")) {
@@ -109,82 +112,69 @@ void oscEvent(OscMessage msg) {
       println("Invalid ID extracted from label: " + label);
       return;
     }
-    handleObjectUpdate(id, x, y);
+
+    // Check if the ID is new or already active
+    if (!activeIds.contains(id)) {
+      // New ID, handle as a new addition
+      activeIds.add(id);
+      handleObjectUpdate(id, x, y); // Add sound and process the update
+    } else {
+      // Existing ID, just update its position and sound if necessary
+      handleObjectUpdate(id, x, y); 
+    }
+
+    // Check for removed items (IDs that were active but no longer in any circle)
+    Set<Integer> removedIds = new HashSet<>(activeIds); // Start with all active IDs
+    for (Circle circle : circles.circleList) {
+      if (circle.getCurrentId() != -1) {
+        removedIds.remove(circle.getCurrentId()); // Remove IDs still in the circles
+      }
+    }
+    // Remove sounds and reset circles for removed IDs
+    for (int removedId : removedIds) {
+      handleObjectRemoval(removedId); // ID is no longer present, so handle removal
+      activeIds.remove(removedId); // Remove from active IDs
+    }
   }
 }
-
 
 void handleObjectUpdate(int id, float x, float y) {
   // Map x and y coordinates to screen dimensions
-  float screenX = 395.0;  // Adjusted for normalized coordinates
-  float screenY = 690.0;
-
-  long currentTime = millis();
-
-  // Check if this ID is new or if we haven't seen it in the last 2 seconds
-  boolean isNewId = !idLastUpdateTime.containsKey(id) || (currentTime - idLastUpdateTime.get(id) > 2000);
-
-  // Update the last seen time for the ID
-  idLastUpdateTime.put(id, currentTime);
-
-  for (int i = 0; i < circles.circleList.size(); i++) {
-    Circle circle = circles.circleList.get(i);
-
+  float screenX = x;
+  float screenY = y;
+  
+  for (Circle circle : circles.circleList) {
     if (circle.getCurrentId() == id) {
-      if (circle.isInside(screenX, screenY)) {
-        // The ID is still inside the circle, so no change needed
-        return;
-      } else {
-        // ID has moved out of the circle
+      // The circle already contains this ID
+      if (!circle.isInside(screenX, screenY)) {
+        // ID moved out of the circle
         circle.setHasIngredient(false, -1);
         circle.resetColour();
-        Ingredient ingredient = getIngredientById(id);
-        if (ingredient != null) {
-          soundManager.removeSound(id);
-        }
+        soundManager.removeSound(id); // Stop the sound for this ID
       }
     } else if (!circle.getHasIngredient() && circle.isInside(screenX, screenY)) {
+      // The circle does not yet contain an ingredient, and the ID is inside
       if (isValidIdForCircle(circle, id)) {
-        // Check if the ID is newly added to the first circle and should be reported
-        if (i == 0 && !activeIds.contains(id) && isNewId) {
-          println("New ID added to the first circle: " + id);
-        }
-
-        // Set the circle's color and ID
-        circle.setColour(color(0, 255, 0, 70)); // Green for valid placement
+        circle.setColour(color(0, 255, 0, 70)); // Valid ID color
         circle.setHasIngredient(true, id);
+        circle.setCurrentId(id); // Link the circle with the current ID
+
+        // Retrieve the ingredient and play its sound
         Ingredient ingredient = getIngredientById(id);
         if (ingredient != null) {
-          soundManager.addSound(id, ingredient.getSound());
-        }
-
-        // Mark the ID as active and add to activeIds set if it is new
-        if (isNewId) {
-          activeIds.add(id);
+          soundManager.addSound(id, ingredient.getSound()); // Play sound for this ID
+          soundManager.start();
+          println("Sound added and playing for ID: " + id);
+        } else {
+          println("Ingredient not found for ID: " + id);
         }
       } else {
-        // If not valid, mark the circle as occupied to prevent flickering
-        circle.setColour(color(255, 0, 0, 70)); // Red for invalid placement
-        circle.setHasIngredient(true, id);
+        // Invalid ID for this circle
+        circle.setColour(color(255, 0, 0, 70)); // Invalid ID color
       }
     }
   }
-
-  // Remove IDs from the active set if no OSC message has been received for them in the last 2 seconds
-  Set<Integer> idsToRemove = new HashSet<>();
-  for (Integer activeId : activeIds) {
-    if (currentTime - idLastUpdateTime.get(activeId) > 2000) {
-      idsToRemove.add(activeId);
-    }
-  }
-
-  // Handle removal of IDs
-  for (int idToRemove : idsToRemove) {
-    handleObjectRemoval(idToRemove);
-    activeIds.remove(idToRemove);
-  }
 }
-
 
 void handleObjectRemoval(int id) {
   println("Object removed: ID " + id);
@@ -260,8 +250,42 @@ void sendOscMessage() {
   OscMessage msg = new OscMessage("");
   msg.add(12345);
   msg.add("0");
-  msg.add(1.2);
-  msg.add(0.1);
+  msg.add(395.0);
+  msg.add(690.0);
+  msg.add(0.0);
+  oscP5.send(msg, remoteLocation);
+
+}
+
+void sendOscMessage1() {
+  OscMessage msg = new OscMessage("");
+  msg.add(12345);
+  msg.add("4");
+  msg.add(765.0);
+  msg.add(690.0);
   msg.add(0.0);
   oscP5.send(msg, remoteLocation);
 }
+
+void sendOscMessage2() {
+  OscMessage msg = new OscMessage("");
+  msg.add(12345);
+  msg.add("9");
+  msg.add(1135.0);
+  msg.add(690.0);
+  msg.add(0.0);
+  oscP5.send(msg, remoteLocation);
+}
+
+
+void sendOscMessage3() {
+  OscMessage msg = new OscMessage("");
+  msg.add(12345);
+  msg.add("13");
+  msg.add(1505.0);
+  msg.add(0.0);
+  msg.add(0.0);
+  oscP5.send(msg, remoteLocation);
+}
+
+

@@ -11,20 +11,15 @@ public class SoundManager {
         syncPosition = 0; // Start playback position
     }
 
-    public boolean isPlaying(int id) {
-        return activeSounds.containsKey(id) && activeSounds.get(id).isPlaying();
-    }
-
     /**
      * Adds a sound associated with a specific ID.
-     * If the sound is not already playing, it will start from the current sync position.
+     * If playback is ongoing, the new sound starts playing in sync.
      */
     public void addSound(int id, Sound sound) {
         if (!activeSounds.containsKey(id)) {
             activeSounds.put(id, sound);
-            if (!isPlaying) {
-                sound.playFromPosition(syncPosition); // Start sound from sync position
-                isPlaying = true; // Set isPlaying to true once the sound is started
+            if (isPlaying) {
+                sound.playFromPosition(syncPosition);
             }
         }
     }
@@ -36,7 +31,7 @@ public class SoundManager {
     public void removeSound(int id) {
         if (activeSounds.containsKey(id)) {
             Sound sound = activeSounds.get(id);
-            sound.stop(); // Stop sound when ingredient is removed
+            sound.stop();
             activeSounds.remove(id);
 
             // If no sounds are left, stop playback
@@ -54,7 +49,7 @@ public class SoundManager {
         if (!isPlaying) {
             syncPosition = 0; // Start from the beginning
             for (Sound sound : activeSounds.values()) {
-                sound.playFromPosition(syncPosition); // Loop the sound from sync position
+                sound.playFromPosition(syncPosition);
             }
             isPlaying = true;
         }
@@ -82,9 +77,5 @@ public class SoundManager {
         activeSounds.clear();
         isPlaying = false;
         syncPosition = 0;
-    }
-
-    boolean hasActiveSounds() {
-        return !activeSounds.isEmpty();
     }
 }

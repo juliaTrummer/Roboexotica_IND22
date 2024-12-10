@@ -1,40 +1,42 @@
 class Circle {
-  // Existing properties
-  float centerX, centerY;
-  float radius;
-  int colour;
-  boolean hasIngredient;
+  float centerX, centerY; // Center of the circle
+  float radius;           // Radius of the circle
+  int colour;              // Current colour
+  boolean hasIngredient;  // Whether the circle contains an ingredient
   int currentId;
-  int initialColour;
-  String name;
-
-  Sound sound; // Reference to a sound
+  int initialColour;          // The ID currently in the circle
 
   // Constructor
-  Circle(float x, float y, float r, int colour, String name) {
+  Circle(float x, float y, float r, int colour) {
     centerX = x;
     centerY = y;
     radius = r;
     this.colour = color(0, 0, 0);
     this.initialColour = colour;
     hasIngredient = false;
-    currentId = -1;
-    this.name = name;
-    this.sound = null; // Initialize with no sound
+    currentId = -1; // No ID initially
   }
 
-  void setSound(Sound sound) {
-    this.sound = sound;
-  }
+  void drawCircle() {
+    noFill();
+    stroke(initialColour);
+    strokeWeight(5);
+    ellipse(centerX, centerY, radius*2, radius*2);
 
-  Sound getSound() {
-    return sound;
+    noStroke();
+    fill(colour);
+    ellipse(centerX, centerY, radius*2, radius*2);
+
+    fill(initialColour);
+    ellipse(centerX, centerY, radius/2, radius/2);
+    fill(colour);
+    ellipse(centerX, centerY, radius/10, radius/10);
   }
 
   // Check if a point is inside the circle
   boolean isInside(float x, float y) {
-    float d = dist(x, y, centerX, centerY);
-    return d <= radius;
+    float dist = dist(x, y, centerX, centerY);
+    return dist <= radius;
   }
 
   // Setters and Resetters
@@ -59,25 +61,7 @@ class Circle {
     return currentId;
   }
 
-  void addText(String text, float centerX, float centerY, float radius, color colour) {
-    fill(colour);
-    textSize(42);  // Set the font size
-    textAlign(CENTER, CENTER);
-    text(text, centerX, centerY+radius+(height*0.1));
-  }
-
-   void drawCircle() {
-    noFill();
-    stroke(initialColour);
-    strokeWeight(5);
-    ellipse(centerX, centerY, radius*2, radius*2);
-    addText(name, centerX, centerY, radius, initialColour);
-    noStroke();
-    fill(colour);
-    ellipse(centerX, centerY, radius*2, radius*2);
-    fill(initialColour);
-    ellipse(centerX, centerY, radius/2, radius/2);
-    fill(colour);
-    ellipse(centerX, centerY, radius/10, radius/10);
+  void setCurrentId(int id){
+    this.currentId = id;
   }
 }
