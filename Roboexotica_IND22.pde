@@ -34,6 +34,7 @@ int lastSendTime = 0;
 
 long lastShakerUpdateTime = 0; // Last time the shaker's position was updated
 long shakerRemovalDelay = 2000; // 2 seconds delay (in milliseconds)
+boolean displayShakerInfoText = false;
 
 void setup() {
   size(1900, 1080);
@@ -110,7 +111,6 @@ void draw() {
 
 void checkShakerRemoval() {
   long currentTime = millis();
-  
   if (currentTime - lastShakerUpdateTime > shakerRemovalDelay) {
     shaker.getSound().play();
   }
@@ -129,13 +129,10 @@ void oscEvent(OscMessage msg) {
     }
 
     if (id == 16) {
-      println("Shaker placed!");
       lastShakerUpdateTime = millis();
       if (!shaker.isInside(x, y)) {
-        fill(255, 0, 0); // Red text color
-        textSize(24);
-        text("Place Shaker back!", 20, 40); // Draw message at the top-left
-      }
+        displayShakerInfoText = true;    
+     }
       return;
     }
 
@@ -256,6 +253,11 @@ void drawMainScreen() {
   circles.drawCircles();
   shaker.drawShaker();
   soundManager.updatePosition();
+  if(displayShakerInfoText){
+    fill(255, 0, 0); // Red text color
+    textSize(24);
+    text("Place Shaker back to where it belongs!", 20, 40); // Draw message at the top-left
+  }
 }
 
 void drawWaitingScreen() {
@@ -328,7 +330,7 @@ void sendOscMessage5() {
   OscMessage msg = new OscMessage("");
   msg.add(12345);
   msg.add("16");
-  msg.add(1700.0);
+  msg.add(1400.0);
   msg.add(200.0);
   msg.add(0.0);
   oscP5.send(msg, remoteLocation);
